@@ -433,7 +433,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
@@ -543,24 +544,15 @@ class HTMLHeaderTextSplitter:
     def aggregate_elements_to_chunks(
         self, elements: List[ElementType]
     ) -> List[Document]:
-        """Combine elements with common metadata into chunks
+        if not elements:
+            return []
 
-        Args:
-            elements: HTML element content with associated identifying info and metadata
-        """
-        aggregated_chunks: List[ElementType] = []
+        aggregated_chunks: List[ElementType] = [elements[0]]
 
-        for element in elements:
-            if (
-                aggregated_chunks
-                and aggregated_chunks[-1]["metadata"] == element["metadata"]
-            ):
-                # If the last element in the aggregated list
-                # has the same metadata as the current element,
-                # append the current content to the last element's content
+        for element in elements[1:]:
+            if aggregated_chunks[-1]["metadata"] == element["metadata"]:
                 aggregated_chunks[-1]["content"] += "  \n" + element["content"]
             else:
-                # Otherwise, append the current element to the aggregated list
                 aggregated_chunks.append(element)
 
         return [
