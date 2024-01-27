@@ -138,17 +138,22 @@ class TextSplitter(BaseDocumentTransformer, ABC):
         self, texts: List[str], metadatas: Optional[List[dict]] = None
     ) -> List[Document]:
         """Create documents from a list of texts."""
-        _metadatas = metadatas or [{}] * len(texts)
+        if metadatas is None:
+            metadatas = [{}] * len(texts)
+
         documents = []
         for i, text in enumerate(texts):
             index = -1
+
             for chunk in self.split_text(text):
-                metadata = copy.deepcopy(_metadatas[i])
+                metadata = metadatas[i].copy()
+
                 if self._add_start_index:
                     index = text.find(chunk, index + 1)
                     metadata["start_index"] = index
-                new_doc = Document(page_content=chunk, metadata=metadata)
-                documents.append(new_doc)
+
+                documents.append(Document(page_content=chunk, metadata=metadata))
+
         return documents
 
     def split_documents(self, documents: Iterable[Document]) -> List[Document]:
@@ -433,7 +438,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
@@ -694,6 +700,11 @@ def split_text_on_tokens(*, text: str, tokenizer: Tokenizer) -> List[str]:
         cur_idx = min(start_idx + tokenizer.tokens_per_chunk, len(input_ids))
         chunk_ids = input_ids[start_idx:cur_idx]
     return splits
+
+
+@abstractmethod
+def split_text(self, text: str) -> List[str]:
+    """Split text into multiple components."""
 
 
 class TokenTextSplitter(TextSplitter):
