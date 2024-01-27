@@ -50,7 +50,13 @@ DEFAULT_QUERY_PROMPT = PromptTemplate(
 
 
 def _unique_documents(documents: Sequence[Document]) -> List[Document]:
-    return [doc for i, doc in enumerate(documents) if doc not in documents[:i]]
+    seen = set()
+    result = []
+    for doc in documents:
+        if doc not in seen:
+            seen.add(doc)
+            result.append(doc)
+    return result
 
 
 class MultiQueryRetriever(BaseRetriever):
