@@ -433,7 +433,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
@@ -681,18 +682,19 @@ class Tokenizer:
 
 def split_text_on_tokens(*, text: str, tokenizer: Tokenizer) -> List[str]:
     """Split incoming text and return chunks using tokenizer."""
-    splits: List[str] = []
     input_ids = tokenizer.encode(text)
+    splits: List[str] = []
+    len_input_ids = len(input_ids)
+    tokens_per_chunk = tokenizer.tokens_per_chunk
+    chunk_overlap = tokenizer.chunk_overlap
+
     start_idx = 0
-    cur_idx = min(start_idx + tokenizer.tokens_per_chunk, len(input_ids))
-    chunk_ids = input_ids[start_idx:cur_idx]
-    while start_idx < len(input_ids):
-        splits.append(tokenizer.decode(chunk_ids))
-        if cur_idx == len(input_ids):
+    while start_idx < len_input_ids:
+        cur_idx = min(start_idx + tokens_per_chunk, len_input_ids)
+        splits.append(tokenizer.decode(input_ids[start_idx:cur_idx]))
+        if cur_idx == len_input_ids:
             break
-        start_idx += tokenizer.tokens_per_chunk - tokenizer.chunk_overlap
-        cur_idx = min(start_idx + tokenizer.tokens_per_chunk, len(input_ids))
-        chunk_ids = input_ids[start_idx:cur_idx]
+        start_idx += tokens_per_chunk - chunk_overlap
     return splits
 
 
