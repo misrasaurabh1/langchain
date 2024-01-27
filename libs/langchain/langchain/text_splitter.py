@@ -137,13 +137,12 @@ class TextSplitter(BaseDocumentTransformer, ABC):
     def create_documents(
         self, texts: List[str], metadatas: Optional[List[dict]] = None
     ) -> List[Document]:
-        """Create documents from a list of texts."""
         _metadatas = metadatas or [{}] * len(texts)
         documents = []
         for i, text in enumerate(texts):
             index = -1
             for chunk in self.split_text(text):
-                metadata = copy.deepcopy(_metadatas[i])
+                metadata = {key: value for key, value in _metadatas[i].items()}
                 if self._add_start_index:
                     index = text.find(chunk, index + 1)
                     metadata["start_index"] = index
@@ -433,7 +432,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
