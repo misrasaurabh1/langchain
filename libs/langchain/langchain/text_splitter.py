@@ -433,7 +433,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
@@ -543,28 +544,24 @@ class HTMLHeaderTextSplitter:
     def aggregate_elements_to_chunks(
         self, elements: List[ElementType]
     ) -> List[Document]:
-        """Combine elements with common metadata into chunks
+        if not elements:
+            return []
 
-        Args:
-            elements: HTML element content with associated identifying info and metadata
-        """
         aggregated_chunks: List[ElementType] = []
 
-        for element in elements:
-            if (
-                aggregated_chunks
-                and aggregated_chunks[-1]["metadata"] == element["metadata"]
-            ):
-                # If the last element in the aggregated list
-                # has the same metadata as the current element,
-                # append the current content to the last element's content
-                aggregated_chunks[-1]["content"] += "  \n" + element["content"]
+        current_element = elements[0]
+        for element in elements[1:]:
+            if current_element["metadata"] == element["metadata"]:
+                current_element["content"].append("  \n" + element["content"])
             else:
-                # Otherwise, append the current element to the aggregated list
-                aggregated_chunks.append(element)
+                aggregated_chunks.append(current_element)
+                current_element = element
+
+        # Add the last element to the list
+        aggregated_chunks.append(current_element)
 
         return [
-            Document(page_content=chunk["content"], metadata=chunk["metadata"])
+            Document(page_content="".join(chunk["content"]), metadata=chunk["metadata"])
             for chunk in aggregated_chunks
         ]
 
