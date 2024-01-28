@@ -36,16 +36,14 @@ class PineconeTranslator(Visitor):
         return {self._format_func(operation.operator): args}
 
     def visit_comparison(self, comparison: Comparison) -> Dict:
-        if comparison.comparator in (Comparator.IN, Comparator.NIN) and not isinstance(
-            comparison.value, list
-        ):
-            comparison.value = [comparison.value]
+        comparator = self._format_func(comparison.comparator)
 
-        return {
-            comparison.attribute: {
-                self._format_func(comparison.comparator): comparison.value
-            }
-        }
+        if comparator in ("$in", "$nin") and not isinstance(comparison.value, list):
+            value = [comparison.value]
+        else:
+            value = comparison.value
+
+        return {comparison.attribute: {comparator: value}}
 
     def visit_structured_query(
         self, structured_query: StructuredQuery
