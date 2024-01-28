@@ -55,12 +55,15 @@ class RedisTranslator(Visitor):
         self._schema = schema
 
     def _attribute_to_filter_field(self, attribute: str) -> RedisFilterField:
-        if attribute in [tf.name for tf in self._schema.text]:
-            return RedisText(attribute)
-        elif attribute in [tf.name for tf in self._schema.tag or []]:
-            return RedisTag(attribute)
-        elif attribute in [tf.name for tf in self._schema.numeric or []]:
-            return RedisNum(attribute)
+        for tf in self._schema.text:
+            if attribute == tf.name:
+                return RedisText(attribute)
+        for tf in self._schema.tag or []:
+            if attribute == tf.name:
+                return RedisTag(attribute)
+        for tf in self._schema.numeric or []:
+            if attribute == tf.name:
+                return RedisNum(attribute)
         else:
             raise ValueError(
                 f"Invalid attribute {attribute} not in vector store schema. Schema is:"
