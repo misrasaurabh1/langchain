@@ -43,8 +43,13 @@ class ChromaTranslator(Visitor):
     def visit_structured_query(
         self, structured_query: StructuredQuery
     ) -> Tuple[str, dict]:
-        if structured_query.filter is None:
-            kwargs = {}
-        else:
-            kwargs = {"filter": structured_query.filter.accept(self)}
+        kwargs = {}
+        if structured_query.filter is not None:
+            kwargs["filter"] = structured_query.filter.accept(self)
         return structured_query.query, kwargs
+
+
+def accept(self, visitor: Visitor):
+    visit_func_name = f"visit_{_to_snake_case(self.__class__.__name__)}"
+    visit_func = getattr(visitor, visit_func_name)
+    return visit_func(self)
