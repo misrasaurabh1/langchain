@@ -48,6 +48,11 @@ def _value_deserializer(serialized_value: bytes) -> List[float]:
     return cast(List[float], json.loads(serialized_value.decode()))
 
 
+def _key_encoder(key: str, namespace: str) -> str:
+    """Encode a key."""
+    return f"{namespace}{_hash_string_to_uuid(key)}"
+
+
 class CacheBackedEmbeddings(Embeddings):
     """Interface for caching results from embedding models.
 
