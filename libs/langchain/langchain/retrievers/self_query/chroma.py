@@ -26,7 +26,10 @@ class ChromaTranslator(Visitor):
     """Subset of allowed logical comparators."""
 
     def _format_func(self, func: Union[Operator, Comparator]) -> str:
-        self._validate_func(func)
+        if isinstance(func, Operator):
+            self._validate_operator_func(func)
+        elif isinstance(func, Comparator):
+            self._validate_comparator_func(func)
         return f"${func.value}"
 
     def visit_operation(self, operation: Operation) -> Dict:
@@ -48,3 +51,19 @@ class ChromaTranslator(Visitor):
         else:
             kwargs = {"filter": structured_query.filter.accept(self)}
         return structured_query.query, kwargs
+
+
+def _validate_operator_func(self, func: Operator) -> None:
+    if self.allowed_operators is not None and func not in self.allowed_operators:
+        raise ValueError(
+            f"Received disallowed operator {func}. Allowed "
+            f"operators are {self.allowed_operators}"
+        )
+
+
+def _validate_comparator_func(self, func: Comparator) -> None:
+    if self.allowed_comparators is not None and func not in self.allowed_comparators:
+        raise ValueError(
+            f"Received disallowed comparator {func}. Allowed "
+            f"comparators are {self.allowed_comparators}"
+        )
