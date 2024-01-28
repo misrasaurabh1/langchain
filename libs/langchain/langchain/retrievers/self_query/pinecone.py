@@ -55,3 +55,19 @@ class PineconeTranslator(Visitor):
         else:
             kwargs = {"filter": structured_query.filter.accept(self)}
         return structured_query.query, kwargs
+
+
+def _validate_func(self, func: Union[Operator, Comparator]) -> None:
+    func_type_allowed, type_name = (
+        (self.allowed_operators, "operator")
+        if isinstance(func, Operator)
+        else (self.allowed_comparators, "comparator")
+        if isinstance(func, Comparator)
+        else (None, None)
+    )
+
+    if func_type_allowed is not None and func not in func_type_allowed:
+        raise ValueError(
+            f"Received disallowed {type_name} {func}. Allowed "
+            f"comparators are {func_type_allowed}"
+        )
