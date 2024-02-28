@@ -57,11 +57,17 @@ class ModelLaboratory:
             prompt: Optional prompt to use to prompt the LLMs. Defaults to None.
                 If a prompt was provided, it should only have one input variable.
         """
-        if prompt is None:
-            prompt = PromptTemplate(input_variables=["_input"], template="{_input}")
-        chains = [LLMChain(llm=llm, prompt=prompt) for llm in llms]
-        names = [str(llm) for llm in llms]
-        return cls(chains, names=names)
+        return cls(
+            [
+                LLMChain(
+                    llm=llm,
+                    prompt=prompt
+                    or PromptTemplate(input_variables=["_input"], template="{_input}"),
+                )
+                for llm in llms
+            ],
+            names=[str(llm) for llm in llms],
+        )
 
     def compare(self, text: str) -> None:
         """Compare model outputs on an input text.
