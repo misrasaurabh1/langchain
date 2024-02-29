@@ -48,3 +48,8 @@ class ChromaTranslator(Visitor):
         else:
             kwargs = {"filter": structured_query.filter.accept(self)}
         return structured_query.query, kwargs
+
+
+def _format_func(self, func: Union[Operator, Comparator]) -> str:
+    self._validate_func(func)
+    return f"${func.value}"
