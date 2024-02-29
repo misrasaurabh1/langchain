@@ -66,12 +66,8 @@ class EncoderBackedStore(BaseStore[K, V]):
 
     def mget(self, keys: Sequence[K]) -> List[Optional[V]]:
         """Get the values associated with the given keys."""
-        encoded_keys: List[str] = [self.key_encoder(key) for key in keys]
-        values = self.store.mget(encoded_keys)
-        return [
-            self.value_deserializer(value) if value is not None else value
-            for value in values
-        ]
+        values = self.store.mget(map(self.key_encoder, keys))
+        return [self.value_deserializer(value) if value else value for value in values]
 
     def mset(self, key_value_pairs: Sequence[Tuple[K, V]]) -> None:
         """Set the values for the given keys."""
