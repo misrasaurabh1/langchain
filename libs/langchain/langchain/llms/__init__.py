@@ -1,3 +1,5 @@
+from langchain_community.llms.aleph_alpha import AlephAlpha
+
 """
 **LLM** classes provide
 access to the large language model (**LLM**) APIs and services.
@@ -33,8 +35,6 @@ def _import_ai21() -> Any:
 
 
 def _import_aleph_alpha() -> Any:
-    from langchain_community.llms.aleph_alpha import AlephAlpha
-
     return AlephAlpha
 
 
