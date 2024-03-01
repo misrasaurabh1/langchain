@@ -1,3 +1,5 @@
+from langchain_community.llms.ai21 import AI21
+
 """
 **LLM** classes provide
 access to the large language model (**LLM**) APIs and services.
@@ -27,8 +29,6 @@ from langchain.utils.interactive_env import is_interactive_env
 
 
 def _import_ai21() -> Any:
-    from langchain_community.llms.ai21 import AI21
-
     return AI21
 
 
