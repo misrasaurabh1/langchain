@@ -9,8 +9,8 @@ from langchain_core.output_parsers import BaseOutputParser
 class RegexParser(BaseOutputParser):
     """Parse the output of an LLM call using a regex."""
 
-    @classmethod
-    def is_lc_serializable(cls) -> bool:
+    @staticmethod
+    def is_lc_serializable() -> bool:
         return True
 
     regex: str
