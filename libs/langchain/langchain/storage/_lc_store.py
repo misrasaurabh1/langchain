@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 """Create a key-value store for any langchain serializable object."""
 from typing import Callable, Optional
 
@@ -8,6 +10,7 @@ from langchain_core.stores import BaseStore, ByteStore
 from langchain.storage.encoder_backed import EncoderBackedStore
 
 
+@lru_cache(maxsize=None)
 def _dump_as_bytes(obj: Serializable) -> bytes:
     """Return a bytes representation of a document."""
     return dumps(obj).encode("utf-8")
