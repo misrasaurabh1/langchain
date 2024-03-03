@@ -20,7 +20,9 @@ def _resolve_schema_references(schema: Any, definitions: Dict[str, Any]) -> Any:
 
 
 def _convert_schema(schema: dict) -> dict:
-    props = {k: {"title": k, **v} for k, v in schema["properties"].items()}
+    props = schema["properties"]
+    for k, v in props.items():
+        v["title"] = k
     return {
         "type": "object",
         "properties": props,
