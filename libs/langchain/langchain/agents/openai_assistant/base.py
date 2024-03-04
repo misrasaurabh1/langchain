@@ -26,6 +26,8 @@ class OpenAIAssistantFinish(AgentFinish):
 
     run_id: str
     thread_id: str
+    # Possible existing methods
+    # ...
 
     @classmethod
     def is_lc_serializable(cls) -> bool:
