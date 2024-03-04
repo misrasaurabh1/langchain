@@ -1,4 +1,5 @@
 """Logic for converting internal query language to a valid Chroma query."""
+
 from typing import Tuple, Union
 
 from langchain.chains.query_constructor.ir import (
@@ -28,10 +29,11 @@ OPERATOR_TO_TQL = {
 
 def can_cast_to_float(string: str) -> bool:
     """Check if a string can be cast to a float."""
-    try:
-        float(string)
+    if string.replace(".", "", 1).isdigit():
         return True
-    except ValueError:
+    elif string.startswith("-") and string[1:].replace(".", "", 1).isdigit():
+        return True
+    else:
         return False
 
 
