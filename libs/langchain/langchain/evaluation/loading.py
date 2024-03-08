@@ -1,4 +1,5 @@
 """Loading datasets and evaluators."""
+
 from typing import Any, Dict, List, Optional, Sequence, Type, Union
 
 from langchain_community.chat_models.openai import ChatOpenAI
@@ -182,6 +183,8 @@ def load_evaluators(
     """
     loaded = []
     for evaluator in evaluators:
-        _kwargs = config.get(evaluator, {}) if config else {}
-        loaded.append(load_evaluator(evaluator, llm=llm, **{**kwargs, **_kwargs}))
+        _kwargs = dict(kwargs)
+        if config and evaluator in config:
+            _kwargs.update(config[evaluator])
+        loaded.append(load_evaluator(evaluator, llm=llm, **_kwargs))
     return loaded
