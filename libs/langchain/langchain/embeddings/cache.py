@@ -6,6 +6,7 @@ embeddings for the same text.
 
 The text is hashed and the hash is used as the key in the cache.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -45,7 +46,7 @@ def _value_serializer(value: Sequence[float]) -> bytes:
 
 def _value_deserializer(serialized_value: bytes) -> List[float]:
     """Deserialize a value."""
-    return cast(List[float], json.loads(serialized_value.decode()))
+    return json.loads(serialized_value.decode())
 
 
 class CacheBackedEmbeddings(Embeddings):
@@ -141,9 +142,9 @@ class CacheBackedEmbeddings(Embeddings):
         Returns:
             A list of embeddings for the given texts.
         """
-        vectors: List[
-            Union[List[float], None]
-        ] = await self.document_embedding_store.amget(texts)
+        vectors: List[Union[List[float], None]] = (
+            await self.document_embedding_store.amget(texts)
+        )
         missing_indices: List[int] = [
             i for i, vector in enumerate(vectors) if vector is None
         ]
