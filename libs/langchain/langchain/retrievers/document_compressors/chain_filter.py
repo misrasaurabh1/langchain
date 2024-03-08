@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 """Filter that uses an LLM to drop documents that aren't relevant to the query."""
 from typing import Any, Callable, Dict, Optional, Sequence
 
@@ -14,6 +16,7 @@ from langchain.retrievers.document_compressors.chain_filter_prompt import (
 )
 
 
+@lru_cache(maxsize=None)  # unlimited cache size
 def _get_default_chain_prompt() -> PromptTemplate:
     return PromptTemplate(
         template=prompt_template,
