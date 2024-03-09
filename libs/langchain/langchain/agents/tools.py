@@ -1,4 +1,5 @@
 """Interface for tools."""
+
 from typing import List, Optional
 
 from langchain_core.callbacks import (
@@ -21,7 +22,7 @@ class InvalidTool(BaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Use the tool."""
-        available_tool_names_str = ", ".join([tool for tool in available_tool_names])
+        available_tool_names_str = ", ".join(available_tool_names)
         return (
             f"{requested_tool_name} is not a valid tool, "
             f"try one of [{available_tool_names_str}]."
