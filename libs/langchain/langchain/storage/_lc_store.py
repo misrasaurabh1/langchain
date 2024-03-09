@@ -1,4 +1,5 @@
 """Create a key-value store for any langchain serializable object."""
+
 from typing import Callable, Optional
 
 from langchain_core.documents import Document
@@ -38,26 +39,21 @@ def _identity(x: str) -> str:
     return x
 
 
-# PUBLIC API
-
-
 def create_lc_store(
-    store: ByteStore,
-    *,
-    key_encoder: Optional[Callable[[str], str]] = None,
+    store: ByteStore, key_encoder: Callable[[str], str] = _identity
 ) -> BaseStore[str, Serializable]:
     """Create a store for langchain serializable objects from a bytes store.
 
     Args:
         store: A bytes store to use as the underlying store.
-        key_encoder: A function to encode keys; if None uses identity function.
+        key_encoder: A function to encode keys; by default, uses identity function.
 
     Returns:
         A key-value store for documents.
     """
     return EncoderBackedStore(
         store,
-        key_encoder or _identity,
+        key_encoder,
         _dump_as_bytes,
         _load_from_bytes,
     )
