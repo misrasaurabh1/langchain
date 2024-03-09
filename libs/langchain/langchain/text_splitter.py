@@ -80,20 +80,25 @@ def _make_spacy_pipeline_for_splitting(
 def _split_text_with_regex(
     text: str, separator: str, keep_separator: bool
 ) -> List[str]:
-    # Now that we have the separator, split the text
-    if separator:
-        if keep_separator:
-            # The parentheses in the pattern keep the delimiters in the result.
-            _splits = re.split(f"({separator})", text)
-            splits = [_splits[i] + _splits[i + 1] for i in range(1, len(_splits), 2)]
-            if len(_splits) % 2 == 0:
-                splits += _splits[-1:]
-            splits = [_splits[0]] + splits
-        else:
-            splits = re.split(separator, text)
-    else:
-        splits = list(text)
-    return [s for s in splits if s != ""]
+    # No separator means return list of characters
+    if not separator:
+        return list(text)
+
+    # Simple split if separator shouldn't be kept
+    if not keep_separator:
+        return [s for s in text.split(separator) if s]
+
+    # Special handling if separator should be kept
+    splits = []
+    for part in text.split(separator):
+        if part:
+            if splits and splits[-1] != separator:
+                splits.append(separator)
+            splits.append(part)
+        elif not splits or splits[-1] != separator:
+            splits.append(separator)
+
+    return splits
 
 
 class TextSplitter(BaseDocumentTransformer, ABC):
@@ -437,7 +442,8 @@ class MarkdownHeaderTextSplitter:
                 if stripped_line.startswith(sep) and (
                     # Header with no text OR header is followed by space
                     # Both are valid conditions that sep is being used a header
-                    len(stripped_line) == len(sep) or stripped_line[len(sep)] == " "
+                    len(stripped_line) == len(sep)
+                    or stripped_line[len(sep)] == " "
                 ):
                     # Ensure we are tracking the header as metadata
                     if name is not None:
