@@ -11,7 +11,7 @@ from langchain_core.vectorstores import VectorStore
 
 def _get_hours_passed(time: datetime.datetime, ref_time: datetime.datetime) -> float:
     """Get the hours passed between two datetimes."""
-    return (time - ref_time).total_seconds() / 3600
+    return (time - ref_time).total_seconds() / 3600.0
 
 
 class TimeWeightedVectorStoreRetriever(BaseRetriever):
