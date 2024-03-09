@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Any, List, Sequence, Tuple, Union
 
 from langchain_core._api import deprecated
@@ -55,6 +56,7 @@ class XMLAgent(BaseSingleActionAgent):
         )
 
     @staticmethod
+    @lru_cache(maxsize=1)
     def get_default_output_parser() -> XMLAgentOutputParser:
         return XMLAgentOutputParser()
 
