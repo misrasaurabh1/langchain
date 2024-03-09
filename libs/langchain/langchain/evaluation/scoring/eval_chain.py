@@ -1,4 +1,5 @@
 """Base classes for scoring the output of a model on a scale of 1-10."""
+
 from __future__ import annotations
 
 import logging
@@ -51,7 +52,7 @@ _SUPPORTED_CRITERIA = {
 
 
 def resolve_criteria(
-    criteria: Optional[Union[CRITERIA_TYPE, str, List[CRITERIA_TYPE]]],
+    criteria: Optional[Union[CRITERIA_TYPE, str, List[CRITERIA_TYPE]]]
 ) -> dict:
     """Resolve the criteria for the pairwise evaluator.
 
@@ -63,37 +64,45 @@ def resolve_criteria(
 
     """
     if criteria is None:
-        _default_criteria = [
-            Criteria.HELPFULNESS,
-            Criteria.RELEVANCE,
-            Criteria.CORRECTNESS,
-            Criteria.DEPTH,
-        ]
-        return {k.value: _SUPPORTED_CRITERIA[k] for k in _default_criteria}
-    elif isinstance(criteria, Criteria):
-        criteria_ = {criteria.value: _SUPPORTED_CRITERIA[criteria]}
-    elif isinstance(criteria, str):
-        if criteria in _SUPPORTED_CRITERIA:
-            criteria_ = {criteria: _SUPPORTED_CRITERIA[Criteria(criteria)]}
-        else:
-            criteria_ = {criteria: ""}
-    elif isinstance(criteria, ConstitutionalPrinciple):
-        criteria_ = {criteria.name: criteria.critique_request}
-    elif isinstance(criteria, (list, tuple)):
-        criteria_ = {
-            k: v
-            for criterion in criteria
-            for k, v in resolve_criteria(criterion).items()
+        return {
+            Criteria.HELPFULNESS.value: _SUPPORTED_CRITERIA[Criteria.HELPFULNESS],
+            Criteria.RELEVANCE.value: _SUPPORTED_CRITERIA[Criteria.RELEVANCE],
+            Criteria.CORRECTNESS.value: _SUPPORTED_CRITERIA[Criteria.CORRECTNESS],
+            Criteria.DEPTH.value: _SUPPORTED_CRITERIA[Criteria.DEPTH],
         }
-    else:
-        if not criteria:
-            raise ValueError(
-                "Criteria cannot be empty. "
-                "Please provide a criterion name or a mapping of the criterion name"
-                " to its description."
+
+    criteria_type = type(criteria)
+
+    if criteria_type is Criteria:
+        return {criteria.value: _SUPPORTED_CRITERIA[criteria]}
+
+    if criteria_type is str:
+        return {
+            criteria: (
+                _SUPPORTED_CRITERIA[Criteria(criteria)]
+                if criteria in _SUPPORTED_CRITERIA
+                else ""
             )
-        criteria_ = dict(criteria)
-    return criteria_
+        }
+
+    if criteria_type is ConstitutionalPrinciple:
+        return {criteria.name: criteria.critique_request}
+
+    if criteria_type in (list, tuple):
+        criteria_dict = {}
+        for criterion in criteria:
+            criteria_dict.update(resolve_criteria(criterion))
+
+        return criteria_dict
+
+    if not criteria:
+        raise ValueError(
+            "Criteria cannot be empty. "
+            "Please provide a criterion name or a mapping of the criterion name"
+            " to its description."
+        )
+
+    return dict(criteria)
 
 
 class ScoreStringResultOutputParser(BaseOutputParser[dict]):
