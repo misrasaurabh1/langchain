@@ -17,25 +17,21 @@ from langchain.schema import RUN_KEY
 
 
 def _get_score(text: str) -> Optional[Tuple[str, int]]:
-    match = re.search(r"grade:\s*(correct|incorrect)", text.strip(), re.IGNORECASE)
+    text = text.strip()
+    words = text.split()
+    match = re.search(r"grade:\s*(correct|incorrect)", text, re.IGNORECASE)
     if match:
         if match.group(1).upper() == "CORRECT":
             return "CORRECT", 1
         elif match.group(1).upper() == "INCORRECT":
             return "INCORRECT", 0
     try:
-        first_word = (
-            text.strip().split()[0].translate(str.maketrans("", "", string.punctuation))
-        )
+        first_word = words[0].translate(str.maketrans("", "", string.punctuation))
         if first_word.upper() == "CORRECT":
             return "CORRECT", 1
         elif first_word.upper() == "INCORRECT":
             return "INCORRECT", 0
-        last_word = (
-            text.strip()
-            .split()[-1]
-            .translate(str.maketrans("", "", string.punctuation))
-        )
+        last_word = words[-1].translate(str.maketrans("", "", string.punctuation))
         if last_word.upper() == "CORRECT":
             return "CORRECT", 1
         elif last_word.upper() == "INCORRECT":
